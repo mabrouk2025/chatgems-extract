@@ -89,17 +89,10 @@ const Index = () => {
     setUserMessage('');
   };
 
-  const handleSave = () => {
+  const handleSaveAndPublish = () => {
     toast({
-      title: "Document Saved",
-      description: "Your document has been saved successfully.",
-    });
-  };
-
-  const handlePublish = () => {
-    toast({
-      title: "Document Published",
-      description: "Your document has been published successfully.",
+      title: "Success",
+      description: "Your document has been saved and published successfully.",
     });
   };
 
@@ -158,16 +151,10 @@ const Index = () => {
                 <h2 className="text-xl font-semibold text-gray-800">
                   Document Analysis
                 </h2>
-                <div className="flex gap-2">
-                  <Button onClick={handleSave}>
-                    <Save className="mr-2" />
-                    Save
-                  </Button>
-                  <Button onClick={handlePublish}>
-                    <Upload className="mr-2" />
-                    Publish
-                  </Button>
-                </div>
+                <Button onClick={handleSaveAndPublish}>
+                  <Save className="mr-2" />
+                  Save & Publish
+                </Button>
               </div>
               
               <Tabs defaultValue="preview" className="flex-grow">

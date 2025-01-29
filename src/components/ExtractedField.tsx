@@ -5,7 +5,6 @@ interface ExtractedFieldProps {
   value: string;
   confidence: number;
   onDelete: () => void;
-  onEdit: (newValue: string) => void; // Keeping for compatibility
 }
 
 export const ExtractedField = ({
