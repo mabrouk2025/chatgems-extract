@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
+import { Send, Image, FileText, Grid } from "lucide-react";
 import { DocumentUpload } from '@/components/DocumentUpload';
 import { ChatMessage } from '@/components/ChatMessage';
 import { ExtractedField } from '@/components/ExtractedField';
@@ -51,14 +51,12 @@ const Index = () => {
     const url = URL.createObjectURL(file);
     setImageUrl(url);
     
-    // Add upload message to chat
     setMessages(prev => [...prev, {
       type: 'user',
       content: `Uploaded document: ${file.name}`,
       timestamp: new Date().toLocaleTimeString()
     }]);
 
-    // Mock system response
     setTimeout(() => {
       setMessages(prev => [...prev, {
         type: 'system',
@@ -72,7 +70,6 @@ const Index = () => {
     setExtractedFields(prev => prev.filter(field => field.id !== id));
     setBoundingBoxes(prev => prev.filter(box => box.id !== id));
     
-    // Add deletion message to chat
     setMessages(prev => [...prev, {
       type: 'system',
       content: `Field deleted: ${extractedFields.find(f => f.id === id)?.label}`,
@@ -80,32 +77,15 @@ const Index = () => {
     }]);
   };
 
-  const handleEditField = (id: string, newValue: string) => {
-    setExtractedFields(prev => 
-      prev.map(field => 
-        field.id === id ? { ...field, value: newValue } : field
-      )
-    );
-    
-    // Add edit message to chat
-    setMessages(prev => [...prev, {
-      type: 'system',
-      content: `Field updated: ${extractedFields.find(f => f.id === id)?.label}`,
-      timestamp: new Date().toLocaleTimeString()
-    }]);
-  };
-
-  const handleSendMessage = async () => {
+  const handleSendMessage = () => {
     if (!userMessage.trim()) return;
 
-    // Add user message to chat
     setMessages(prev => [...prev, {
       type: 'user',
       content: userMessage,
       timestamp: new Date().toLocaleTimeString()
     }]);
 
-    // Mock Gemini API response
     setTimeout(() => {
       setMessages(prev => [...prev, {
         type: 'system',
@@ -149,7 +129,6 @@ const Index = () => {
                   value={userMessage}
                   onChange={(e) => setUserMessage(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  className="flex-grow"
                 />
                 <Button onClick={handleSendMessage}>
                   <Send className="w-4 h-4" />
@@ -157,49 +136,56 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Right Panel */}
-            <div className="space-y-6">
-              {/* Extracted Data */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  Extracted Data
-                </h2>
-                {extractedFields.map(field => (
-                  <ExtractedField
-                    key={field.id}
-                    label={field.label}
-                    value={field.value}
-                    confidence={field.confidence}
-                    onDelete={() => handleDeleteField(field.id)}
-                    onEdit={(newValue) => handleEditField(field.id, newValue)}
+            {/* Right Panel - Tabs */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <Tabs defaultValue="preview" className="w-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="preview">
+                    <Image className="w-4 h-4 mr-2" />
+                    Image Preview
+                  </TabsTrigger>
+                  <TabsTrigger value="original">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Original Image
+                  </TabsTrigger>
+                  <TabsTrigger value="extracted">
+                    <Grid className="w-4 h-4 mr-2" />
+                    Extracted Data
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="preview" className="h-[600px]">
+                  <ImagePreview
+                    imageUrl={imageUrl}
+                    boundingBoxes={boundingBoxes}
                   />
-                ))}
-              </div>
-
-              {/* Image Preview Tabs */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <Tabs defaultValue="preview" className="w-full">
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="preview">Image Preview</TabsTrigger>
-                    <TabsTrigger value="original">Original Image</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="preview" className="h-[400px]">
-                    <ImagePreview
-                      imageUrl={imageUrl}
-                      boundingBoxes={boundingBoxes}
+                </TabsContent>
+                
+                <TabsContent value="original" className="h-[600px]">
+                  <div className="w-full h-full overflow-auto">
+                    <img
+                      src={imageUrl}
+                      alt="Original document"
+                      className="max-w-full h-auto"
                     />
-                  </TabsContent>
-                  <TabsContent value="original" className="h-[400px]">
-                    <div className="w-full h-full overflow-auto">
-                      <img
-                        src={imageUrl}
-                        alt="Original document"
-                        className="max-w-full h-auto"
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="extracted" className="h-[600px] overflow-auto">
+                  <div className="space-y-4">
+                    {extractedFields.map(field => (
+                      <ExtractedField
+                        key={field.id}
+                        label={field.label}
+                        value={field.value}
+                        confidence={field.confidence}
+                        onDelete={() => handleDeleteField(field.id)}
+                        onEdit={() => {}} // Passing empty function to satisfy props
                       />
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </div>
+                    ))}
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
         )}

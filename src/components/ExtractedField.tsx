@@ -1,12 +1,11 @@
-import { useState } from 'react';
-import { X, Edit2, Check } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface ExtractedFieldProps {
   label: string;
   value: string;
   confidence: number;
   onDelete: () => void;
-  onEdit: (newValue: string) => void;
+  onEdit: (newValue: string) => void; // Keeping for compatibility
 }
 
 export const ExtractedField = ({
@@ -14,16 +13,7 @@ export const ExtractedField = ({
   value,
   confidence,
   onDelete,
-  onEdit,
 }: ExtractedFieldProps) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(value);
-
-  const handleSave = () => {
-    onEdit(editValue);
-    setIsEditing(false);
-  };
-
   const getConfidenceColor = (score: number) => {
     if (score >= 0.8) return 'bg-green-100 text-green-800';
     if (score >= 0.5) return 'bg-yellow-100 text-yellow-800';
@@ -39,12 +29,6 @@ export const ExtractedField = ({
             {Math.round(confidence * 100)}%
           </span>
           <button
-            onClick={() => setIsEditing(!isEditing)}
-            className="text-gray-400 hover:text-doc-primary"
-          >
-            <Edit2 className="w-4 h-4" />
-          </button>
-          <button
             onClick={onDelete}
             className="text-gray-400 hover:text-red-500"
           >
@@ -52,24 +36,7 @@ export const ExtractedField = ({
           </button>
         </div>
       </div>
-      {isEditing ? (
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            className="flex-grow p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-doc-primary"
-          />
-          <button
-            onClick={handleSave}
-            className="p-2 text-doc-primary hover:text-doc-primary/80"
-          >
-            <Check className="w-4 h-4" />
-          </button>
-        </div>
-      ) : (
-        <p className="text-gray-600">{value}</p>
-      )}
+      <p className="text-gray-600">{value}</p>
     </div>
   );
 };
