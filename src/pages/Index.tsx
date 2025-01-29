@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send, Image, FileText, Grid } from "lucide-react";
+import { Send, Image, FileText, Grid, Save, Upload, ArrowLeft } from "lucide-react";
 import { DocumentUpload } from '@/components/DocumentUpload';
 import { ChatMessage } from '@/components/ChatMessage';
 import { ExtractedField } from '@/components/ExtractedField';
@@ -16,21 +16,9 @@ const mockExtraction = {
     { id: '3', label: 'Total Amount', value: '$1,234.56', confidence: 0.75 },
   ],
   boundingBoxes: [
-    { 
-      id: '1', 
-      label: 'Invoice Number',
-      coordinates: { x: 100, y: 50, width: 200, height: 30 }
-    },
-    {
-      id: '2',
-      label: 'Date',
-      coordinates: { x: 100, y: 100, width: 150, height: 30 }
-    },
-    {
-      id: '3',
-      label: 'Total Amount',
-      coordinates: { x: 100, y: 150, width: 180, height: 30 }
-    },
+    { id: '1', label: 'Invoice Number', coordinates: { x: 100, y: 50, width: 200, height: 30 } },
+    { id: '2', label: 'Date', coordinates: { x: 100, y: 100, width: 150, height: 30 } },
+    { id: '3', label: 'Total Amount', coordinates: { x: 100, y: 150, width: 180, height: 30 } },
   ],
 };
 
@@ -101,18 +89,46 @@ const Index = () => {
     setUserMessage('');
   };
 
+  const handleSave = () => {
+    toast({
+      title: "Document Saved",
+      description: "Your document has been saved successfully.",
+    });
+  };
+
+  const handlePublish = () => {
+    toast({
+      title: "Document Published",
+      description: "Your document has been published successfully.",
+    });
+  };
+
+  const handleReturn = () => {
+    setCurrentFile(null);
+    setImageUrl('');
+    setMessages([]);
+    setExtractedFields(mockExtraction.fields);
+    setBoundingBoxes(mockExtraction.boundingBoxes);
+  };
+
   return (
-    <div className="min-h-screen bg-doc-background">
-      <div className="container mx-auto py-8">
+    <div className="min-h-screen bg-doc-background flex items-stretch">
+      <div className="container mx-auto py-4 px-4 flex flex-col h-screen">
         {!currentFile ? (
           <DocumentUpload onFileUpload={handleFileUpload} />
         ) : (
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-2 gap-8 h-full">
             {/* Left Panel - Chat History */}
-            <div className="bg-white rounded-lg shadow-sm p-6 flex flex-col h-[800px]">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                Chat History
-              </h2>
+            <div className="bg-white rounded-lg shadow-sm p-6 flex flex-col">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  Chat History
+                </h2>
+                <Button variant="outline" onClick={handleReturn}>
+                  <ArrowLeft className="mr-2" />
+                  Return to Upload
+                </Button>
+              </div>
               <div className="flex-grow overflow-auto space-y-4 mb-4">
                 {messages.map((message, index) => (
                   <ChatMessage
@@ -137,8 +153,24 @@ const Index = () => {
             </div>
 
             {/* Right Panel - Tabs */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <Tabs defaultValue="preview" className="w-full">
+            <div className="bg-white rounded-lg shadow-sm p-6 flex flex-col">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  Document Analysis
+                </h2>
+                <div className="flex gap-2">
+                  <Button onClick={handleSave}>
+                    <Save className="mr-2" />
+                    Save
+                  </Button>
+                  <Button onClick={handlePublish}>
+                    <Upload className="mr-2" />
+                    Publish
+                  </Button>
+                </div>
+              </div>
+              
+              <Tabs defaultValue="preview" className="flex-grow">
                 <TabsList className="mb-4">
                   <TabsTrigger value="preview">
                     <Image className="w-4 h-4 mr-2" />
@@ -154,24 +186,24 @@ const Index = () => {
                   </TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="preview" className="h-[600px]">
+                <TabsContent value="preview" className="flex-grow">
                   <ImagePreview
                     imageUrl={imageUrl}
                     boundingBoxes={boundingBoxes}
                   />
                 </TabsContent>
                 
-                <TabsContent value="original" className="h-[600px]">
-                  <div className="w-full h-full overflow-auto">
+                <TabsContent value="original" className="flex-grow">
+                  <div className="w-full h-full overflow-hidden">
                     <img
                       src={imageUrl}
                       alt="Original document"
-                      className="max-w-full h-auto"
+                      className="max-w-full h-auto object-contain"
                     />
                   </div>
                 </TabsContent>
                 
-                <TabsContent value="extracted" className="h-[600px] overflow-auto">
+                <TabsContent value="extracted" className="flex-grow overflow-auto">
                   <div className="space-y-4">
                     {extractedFields.map(field => (
                       <ExtractedField
@@ -180,7 +212,6 @@ const Index = () => {
                         value={field.value}
                         confidence={field.confidence}
                         onDelete={() => handleDeleteField(field.id)}
-                        onEdit={() => {}} // Passing empty function to satisfy props
                       />
                     ))}
                   </div>
