@@ -58,7 +58,7 @@ const Index = () => {
     setTimeout(() => {
       setMessages(prev => [...prev, {
         type: 'system',
-        content: 'Document processed successfully. I've extracted the following information.',
+        content: "Document processed successfully. I have extracted the following information.",
         timestamp: new Date().toLocaleTimeString()
       }]);
     }, 1000);
