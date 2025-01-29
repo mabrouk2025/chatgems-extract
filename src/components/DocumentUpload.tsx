@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, File } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface DocumentUploadProps {
